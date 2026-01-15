@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+  <meta name="description" content="Blood West - A Western Action Game">
+  <meta name="theme-color" content="#8B4513">
+  <title>Blood West - Western Duel Game</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Georgia', serif;
+      background: #1a0f0a;
+      touch-action: none;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    
+    #game-container {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+    
+    #game-canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+    
+    #ui-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 100;
+    }
+    
+    #main-menu {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(180deg, #2d1810 0%, #1a0f0a 50%, #0a0502 100%);
+      pointer-events: auto;
+    }
+    
+    #main-menu h1 {
+      font-size: clamp(2rem, 8vw, 4rem);
+      color: #d4a574;
+      text-shadow: 0 0 20px rgba(212, 165, 116, 0.5), 0 4px 8px rgba(0, 0, 0, 0.8);
+      margin-bottom: 0.5rem;
+      letter-spacing: 0.1em;
+      font-weight: bold;
+      font-style: italic;
+    }
+    
+    #main-menu .subtitle {
+      font-size: clamp(0.8rem, 3vw, 1.2rem);
+      color: #8b7355;
+      margin-bottom: 2rem;
+      text-transform: uppercase;
+      letter-spacing: 0.3em;
+    }
+    
+    .menu-btn {
+      min-width: 200px;
+      min-height: 50px;
+      padding: 1rem 2rem;
+      margin: 0.5rem;
+      font-size: clamp(1rem, 4vw, 1.2rem);
+      font-family: 'Georgia', serif;
+      background: linear-gradient(180deg, #8b5a2b 0%, #5c3d1e 100%);
+      border: 2px solid #d4a574;
+      color: #f5e6d3;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      pointer-events: auto;
+    }
+    
+    .menu-btn:hover {
+      background: linear-gradient(180deg, #a06b35 0%, #6c4a28 100%);
+      transform: scale(1.05);
+      box-shadow: 0 0 20px rgba(212, 165, 116, 0.4);
+    }
+    
+    .menu-btn:active {
+      transform: scale(0.98);
+    }
+    
+    #hud {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      display: none;
+    }
+    
+    .health-bar-container {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .health-bar {
+      width: clamp(80px, 20vw, 200px);
+      height: clamp(8px, 2vw, 15px);
+      background: rgba(0, 0, 0, 0.6);
+      border: 2px solid #5c3d1e;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    
+    .health-fill {
+      height: 100%;
+      transition: width 0.3s ease;
+    }
+    
+    #player-health .health-fill {
+      background: linear-gradient(180deg, #4ade80 0%, #22c55e 100%);
+    }
+    
+    #enemy-health .health-fill {
+      background: linear-gradient(180deg, #ef4444 0%, #dc2626 100%);
+    }
+    
+    .health-label {
+      font-size: clamp(0.6rem, 2vw, 0.9rem);
+      color: #d4a574;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+      margin-bottom: 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    
+    #player-stats {
+      position: absolute;
+      bottom: clamp(60px, 15vh, 120px);
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+    }
+    
+    #enemy-stats {
+      position: absolute;
+      top: clamp(10px, 3vh, 30px);
+      right: clamp(10px, 3vw, 30px);
+    }
+    
+    #player-stats .health-bar-container {
+      position: relative;
+    }
+    
+    #player-stats .label {
+      font-size: clamp(0.7rem, 2.5vw, 1rem);
+      color: #d4a574;
+      margin-bottom: 0.3rem;
+    }
+    
+    #duel-timer {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      display: none;
+    }
+    
+    #timer-value {
+      font-size: clamp(3rem, 15vw, 8rem);
+      color: #ffd700;
+      text-shadow: 0 0 30px rgba(255, 215, 0, 0.8), 0 4px 8px rgba(0, 0, 0, 0.8);
+      font-weight: bold;
+      font-style: italic;
+      animation: pulse 1s ease-in-out infinite;
+    }
+    
+    #timer-label {
+      font-size: clamp(0.8rem, 3vw, 1.5rem);
+      color: #d4a574;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      margin-top: 0.5rem;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.8; transform: scale(1.05); }
+    }
+    
+    #shoot-btn {
+      position: absolute;
+      bottom: clamp(20px, 5vh, 40px);
+      left: 50%;
+      transform: translateX(-50%);
+      width: clamp(100px, 25vw, 180px);
+      height: clamp(100px, 25vw, 180px);
+      border-radius: 50%;
+      background: linear-gradient(180deg, #dc2626 0%, #991b1b 100%);
+      border: 4px solid #f87171;
+      color: white;
+      font-size: clamp(1rem, 4vw, 1.5rem);
+      font-family: 'Georgia', serif;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      cursor: pointer;
+      pointer-events: auto;
+      transition: all 0.1s ease;
+      box-shadow: 0 4px 15px rgba(220, 38, 38, 0.5);
+      display: none;
+    }
+    
+    #shoot-btn:active {
+      transform: translateX(-50%) scale(0.95);
+      background: linear-gradient(180deg, #b91c1c 0%, #7f1d1d 100%);
+    }
+    
+    #shoot-btn.ready {
+      animation: glow 0.5s ease-in-out infinite alternate;
+    }
+    
+    @keyframes glow {
+      from { box-shadow: 0 0 20px rgba(220, 38, 38, 0.5); }
+      to { box-shadow: 0 0 40px rgba(220, 38, 38, 0.8); }
+    }
+    
+    #kill-counter {
+      position: absolute;
+      top: clamp(10px, 3vh, 30px);
+      left: clamp(10px, 3vw, 30px);
+      font-size: clamp(0.8rem, 3vw, 1.2rem);
+      color: #d4a574;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+    }
+    
+    #game-over-screen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      pointer-events: auto;
+    }
+    
+    #game-over-screen h2 {
+      font-size: clamp(2rem, 10vw, 5rem);
+      margin-bottom: 1rem;
+      text-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+    }
+    
+    #game-over-screen.win h2 {
+      color: #4ade80;
+    }
+    
+    #game-over-screen.lose h2 {
+      color: #ef4444;
+    }
+    
+    #game-over-screen .stats {
+      font-size: clamp(1rem, 4vw, 1.5rem);
+      color: #d4a574;
+      margin-bottom: 2rem;
+    }
+    
+    #crosshair {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 30px;
+      height: 30px;
+      pointer-events: none;
+      display: none;
+    }
+    
+    #crosshair::before,
+    #crosshair::after {
+      content: '';
+      position: absolute;
+      background: rgba(255, 255, 255, 0.8);
+    }
+    
+    #crosshair::before {
+      width: 2px;
+      height: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    
+    #crosshair::after {
+      width: 100%;
+      height: 2px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    
+    #controls-info {
+      position: absolute;
+      bottom: clamp(80px, 18vh, 140px);
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: clamp(0.7rem, 2.5vw, 1rem);
+      color: #8b7355;
+      text-align: center;
+      display: none;
+    }
+    
+    #victory-message {
+      position: absolute;
+      top: 30%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: clamp(1.5rem, 6vw, 3rem);
+      color: #ffd700;
+      text-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+      text-align: center;
+      display: none;
+      animation: fadeInUp 1s ease-out;
+    }
+    
+    #defeat-message {
+      position: absolute;
+      top: 30%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: clamp(1.5rem, 6vw, 3rem);
+      color: #ef4444;
+      text-shadow: 0 0 30px rgba(239, 68, 68, 0.8);
+      text-align: center;
+      display: none;
+      animation: fadeInUp 1s ease-out;
+    }
+    
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translate(-50%, -30%);
+      }
+      to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+      }
+    }
+    
+    @media (max-width: 768px) {
+      #enemy-stats {
+        top: clamp(50px, 10vh, 80px);
+      }
+    }
+    
+    @media (orientation: portrait) {
+      #main-menu h1 {
+        font-size: clamp(2.5rem, 10vw, 3.5rem);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="game-container">
+    <canvas id="game-canvas"></canvas>
+    
+    <div id="ui-overlay">
+      <div id="main-menu">
+        <h1>BLOOD WEST</h1>
+        <p class="subtitle">A Western Duel Game</p>
+        <button class="menu-btn" id="start-btn">Start Duel</button>
+        <button class="menu-btn" id="difficulty-btn">Difficulty: Normal</button>
+        <button class="menu-btn" id="how-to-btn">How to Play</button>
+      </div>
+      
+      <div id="hud">
+        <div id="kill-counter">Kills: 0</div>
+        
+        <div id="player-stats">
+          <span class="label">YOU</span>
+          <div class="health-bar-container" id="player-health">
+            <div class="health-bar">
+              <div class="health-fill" style="width: 100%"></div>
+            </div>
+          </div>
+        </div>
+        
+        <div id="enemy-stats">
+          <span class="health-label">Enemy</span>
+          <div class="health-bar" id="enemy-health-bar">
+            <div class="health-fill" style="width: 100%"></div>
+          </div>
+        </div>
+        
+        <div id="duel-timer">
+          <div id="timer-value">3</div>
+          <div id="timer-label">DRAW!</div>
+        </div>
+        
+        <div id="crosshair"></div>
+        
+        <button id="shoot-btn">SHOOT!</button>
+        
+        <div id="controls-info">
+          <span id="desktop-controls">Press SPACE or Click to shoot</span>
+          <span id="mobile-controls" style="display: none">Tap SHOOT button when ready</span>
+        </div>
+        
+        <div id="victory-message">YOU WON!</div>
+        <div id="defeat-message">YOU DIED</div>
+      </div>
+      
+      <div id="game-over-screen">
+        <h2 id="game-over-title">VICTORY</h2>
+        <p class="stats" id="game-over-stats">Kills: 0</p>
+        <button class="menu-btn" id="restart-btn">Play Again</button>
+        <button class="menu-btn" id="menu-btn">Main Menu</button>
+      </div>
+    </div>
+  </div>
+  
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
