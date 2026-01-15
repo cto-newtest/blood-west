@@ -1,0 +1,101 @@
+export const Constants = {
+  GAME: {
+    FPS: 60,
+    MAX_BULLETS: 100,
+    BULLET_SPEED: 50,
+    BULLET_DROP: 0.001,
+    PLAYER_HEALTH: 100,
+    ENEMY_HEALTH: 100,
+    DAMAGE_PER_SHOT: 34
+  },
+  
+  DIFFICULTY: {
+    EASY: {
+      NAME: 'Easy',
+      REACTION_TIME: 800,
+      VARIABILITY: 200,
+      ACCURACY: 0.6
+    },
+    NORMAL: {
+      NAME: 'Normal',
+      REACTION_TIME: 500,
+      VARIABILITY: 100,
+      ACCURACY: 0.75
+    },
+    HARD: {
+      NAME: 'Hard',
+      REACTION_TIME: 300,
+      VARIABILITY: 50,
+      ACCURACY: 0.9
+    }
+  },
+  
+  DUEL: {
+    COUNTDOWN_DURATION: 3000,
+    MIN_REACTION_TIME: 200,
+    MAX_REACTION_TIME: 1000
+  },
+  
+  CAMERA: {
+    FOV: 75,
+    NEAR: 0.1,
+    FAR: 1000,
+    HEAD_BOB_SPEED: 8,
+    HEAD_BOB_AMOUNT: 0.02,
+    SWAY_AMOUNT: 0.002,
+    SWAY_SPEED: 0.5,
+    RECOIL_AMOUNT: 0.05,
+    RECOIL_RECOVERY: 10
+  },
+  
+  PHYSICS: {
+    GRAVITY: -9.8,
+    GROUND_FRICTION: 0.8,
+    GROUND_LEVEL: 0.15,
+    AIR_RESISTANCE: 0.98
+  },
+  
+  LIGHTING: {
+    SUN_INTENSITY: 2,
+    AMBIENT_INTENSITY: 0.4,
+    FILL_INTENSITY: 0.3,
+    RIM_INTENSITY: 0.5,
+    FOG_DENSITY: 0.015
+  },
+  
+  AUDIO: {
+    MASTER_VOLUME: 0.5,
+    GUNSHOT_VOLUME: 0.8,
+    HIT_VOLUME: 0.4,
+    MUSIC_VOLUME: 0.3
+  },
+  
+  CONTROLS: {
+    SHOOT_KEY: 'Space',
+    SHOOT_BUTTON_SIZE_MIN: 100,
+    TOUCH_SENSITIVITY: 1,
+    GYRO_SENSITIVITY: 1
+  },
+  
+  UI: {
+    HEALTH_BAR_WIDTH: 200,
+    HEALTH_BAR_HEIGHT: 15,
+    TIMER_PULSE_SPEED: 1,
+    MESSAGE_DURATION: 2000
+  },
+  
+  PERFORMANCE: {
+    MAX_PARTICLES: 100,
+    MAX_LIGHTS: 10,
+    SHADOW_MAP_SIZE: 2048,
+    PIXEL_RATIO_MAX: 2
+  },
+  
+  ASSETS: {
+    MAX_IMAGE_SIZE: 102400,
+    MAX_AUDIO_SIZE: 512000,
+    TEXTURE_FILTER: 'Trilinear'
+  }
+};
+
+export default Constants;
